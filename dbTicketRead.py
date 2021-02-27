@@ -17,17 +17,20 @@ cur = conn.cursor()
 #print("DEBUG: cursor made")
 
 #now we need to figure out logic for handling incoming IDs
-incomingID = 0   #temp variable
-pastID = 0
+incomingID = "0"   #temp variable
+pastID = "0"
 
 #TODO: make these stmts modular
-cur.execute("USE quicketsystem")
+#cur.execute("USE quicketsystem")
 print("Now using database quicketsystem")
 
-incomingID = input("Simlulated ticket is: ")
+incomingID = str(input("Simlulated ticket is: "))
 
 try:
-    cur.execute("SELECT FOR UPDATE * FROM guests WHERE ticketID=? AND used=0", (incomingID,))
+    #cur.execute("SELECT * FROM guests WHERE ticketID=%s AND used=0 FOR UPDATE", (incomingID,))
+    #cur.execute("UPDATE guest SET used=1 WHERE ticketID=%s", (incomingID))
+    cur.execute("UPDATE guests SET used=1 WHERE ticketID=? AND used=0", (incomingID,))
+    #cur.commit()
     print("DEBUG: select thingy done")
 except mariadb.Error as e:
     print(f"Error checking ticket: {e}")
