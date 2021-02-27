@@ -24,18 +24,17 @@ def main():
 
     print("We have connected to the database.")
     cur = conn.cursor()
-    
+
     while True:
         incomingID = str(input("Simlulated ticket is: "))
-        
+
         if (incomingID == "exit") or (incomingID == "Exit"):
             break
         else:
             readTicket(cur, incomingID)
-            
+
     conn.close()
 
     return
 
 main()
-        

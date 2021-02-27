@@ -35,6 +35,7 @@ for (firstName, lastName) in cur:
     print(f"First Name: {firstName}, Last Name: {lastName}")
 print("DEBUG: SELECT done")
 
+
 #cur.execute("SHOW DATABASES")
 
 #retrieving information
