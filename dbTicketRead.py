@@ -5,6 +5,7 @@ import sys
 def readTicket(cur, incomingID):
     try:
         cur.execute("UPDATE guests SET used=1 WHERE ticketID=? AND used=0", (incomingID,))
+        cur.execute("SELECT ROW_COUNT()")
         #currently only says there's no result set
         result = cur.fetchall()
         if result != 0:
@@ -20,10 +21,11 @@ def readTicket(cur, incomingID):
 
 #function to set all used fields to 0 for testing purposes (not working)
 def clearUsed(cur):
+    values = [123,234,345,456,567]
     try:
-        for (ticketID) in cur:
-            cur.execute("UPDATE guests SET used=0")
-            print(f"ID reset: {ticketID}")
+        for item in values:
+            cur.execute("UPDATE guests SET used=0 WHERE ticketID=?",(item,))
+            print(f"ID reset: {item}")
     except mariadb.Error as e:
         print(f"Error resetting database: {e}")
         sys.exit(1)
