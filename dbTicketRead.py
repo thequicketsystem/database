@@ -43,10 +43,11 @@ def clearUsed():
     cur = conn.cursor()
     
     values = [123,234,345,456,567]
+    query = "UPDATE guests SET used=0 WHERE ticketID = %s;"
     
     try:
         for item in values:
-            cur.execute("UPDATE guests SET used=0 WHERE ticketID=?;",(item,))
+            cur.execute(query, item)
             conn.commit()
             print(f"ID reset: {item}")
     except mariadb.Error as e:
@@ -60,15 +61,13 @@ def clearUsed():
 def listGuests():
     conn = helloDB()
     cur = conn.cursor()
-    #values = [123,234,345,456,567]
     print(f"The state of this table is: ")
     query = "SELECT * FROM guests;"
     rows = []
     try:
         cur.execute(query)
+        #print([x[0] for x in cur.description])
         rows = cur.fetchall()
-        #cur.execute("SELECT * FROM guests")
-        #rows = cur.fetchall()
         #for line in rows:
         #    print(line)
         #while True:
@@ -105,14 +104,11 @@ def main():
         elif (incomingID == "show") or (incomingID == "display") or (incomingID == "state"):
             rows = listGuests()
             print(rows)
-            for each in rows:
-                print(each,"\n")
+            #for each in rows:
+            #    print(each,"\n")
         #otherwise, read the ticket
         else:
             readTicket(incomingID)
-
-    #close out our connection now that we're all done
-    conn.close()
 
     return
 
