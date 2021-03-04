@@ -19,7 +19,7 @@ def readTicket(cur, incomingID):
 
     return
 
-#function to set all used fields to 0 for testing purposes (not working)
+#function to set all used fields to 0 for testing purposes
 def clearUsed(cur):
     values = [123,234,345,456,567]
     try:
@@ -28,6 +28,21 @@ def clearUsed(cur):
             print(f"ID reset: {item}")
     except mariadb.Error as e:
         print(f"Error resetting database: {e}")
+        sys.exit(1)
+
+    return
+
+#lists the current state of thetable. not working.
+def listGuests(cur):
+    #values = [123,234,345,456,567]
+    print(f"The state of this table is: ")
+    try:
+        cur.execute("SELECT * FROM guests")
+        rows = cur.fetchall()
+        for line in rows:
+            print(line)
+    except mariadb.Error as e:
+        print(f"Error displaying table: {e}")
         sys.exit(1)
 
     return
@@ -45,7 +60,8 @@ def main():
         sys.exit(1)
 
     #establish our cursor
-    print("We have connected to the database.")
+    print("We have connected to the", conn.database, "database.")
+    print("Server is", conn.server_name)
     cur = conn.cursor()
 
     #loop to continuously check tickets against the db
@@ -53,11 +69,13 @@ def main():
         #get an incoming ticket. later this will be real
         incomingID = str(input("Simlulated ticket is: "))
         
-        if (incomingID == "exit") or (incomingID == "Exit"):
+        if (incomingID == "exit") or (incomingID == "end"):
             #LET ME OOOOOOOOOOUT AAAAAAHHHHHHHH
             break
         elif (incomingID == "wipe") or (incomingID == "reset") or (incomingID == "clear"):
             clearUsed(cur)
+        elif (incomingID == "show") or (incomingID == "display") or (incomingID == "state"):
+            listGuests(cur)
         #otherwise, read the ticket
         else:
             readTicket(cur, incomingID)
