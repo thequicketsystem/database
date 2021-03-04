@@ -2,9 +2,10 @@ import mariadb
 import sys
 
 #function to read out incoming tickets
-def readTicket(cur, incomingID):
+def readTicket(cur, incomingID, conn):
     try:
         cur.execute("UPDATE guests SET used=1 WHERE ticketID=? AND used=0", (incomingID,))
+        conn.commit()
         cur.execute("SELECT ROW_COUNT()")
         #currently only says there's no result set
         result = cur.fetchall()
@@ -17,35 +18,39 @@ def readTicket(cur, incomingID):
         print(f"Error updating ticket: {e}")
         sys.exit(1)
 
-    return
 
 #function to set all used fields to 0 for testing purposes
-def clearUsed(cur):
+def clearUsed(cur, conn):
     values = [123,234,345,456,567]
     try:
         for item in values:
             cur.execute("UPDATE guests SET used=0 WHERE ticketID=?",(item,))
+            conn.commit()
             print(f"ID reset: {item}")
     except mariadb.Error as e:
         print(f"Error resetting database: {e}")
         sys.exit(1)
 
-    return
 
 #lists the current state of thetable. not working.
-def listGuests(cur):
+def listGuests(cur, conn):
     #values = [123,234,345,456,567]
     print(f"The state of this table is: ")
     try:
+        #cur.execute("SELECT * FROM guests")
+        #rows = cur.fetchall()
+        #for line in rows:
+        #    print(line)
         cur.execute("SELECT * FROM guests")
-        rows = cur.fetchall()
-        for line in rows:
-            print(line)
+        while True:
+            row = cur.fetchone()
+            if not row:
+                return
+            print(row)
     except mariadb.Error as e:
         print(f"Error displaying table: {e}")
         sys.exit(1)
 
-    return
 
 def main():
     #set up our db connection
@@ -73,12 +78,12 @@ def main():
             #LET ME OOOOOOOOOOUT AAAAAAHHHHHHHH
             break
         elif (incomingID == "wipe") or (incomingID == "reset") or (incomingID == "clear"):
-            clearUsed(cur)
+            clearUsed(cur,conn)
         elif (incomingID == "show") or (incomingID == "display") or (incomingID == "state"):
-            listGuests(cur)
+            listGuests(cur,conn)
         #otherwise, read the ticket
         else:
-            readTicket(cur, incomingID)
+            readTicket(cur, incomingID, conn)
 
     #close out our connection now that we're all done
     conn.close()
