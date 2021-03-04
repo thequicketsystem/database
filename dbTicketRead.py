@@ -1,6 +1,20 @@
 import mariadb
 import sys
 
+def helloDB():
+    #set up our db connection
+    try:
+        conn = mariadb.connect(
+        user="root",
+        password="quicket",
+        host="localhost",
+        database="quicketsystem")
+    except mariadb.Error as e:
+        print(f"Error connecting to MariaDB Platform: {e}")
+        sys.exit(1)
+        
+    return conn
+
 #function to read out incoming tickets
 def readTicket(cur, incomingID, conn):
     try:
@@ -13,10 +27,11 @@ def readTicket(cur, incomingID, conn):
             print(incomingID, "has been set to USED.")
         else:
             print(f"ERROR: DUPLICATE TICKET ENTRY")
-            return
     except mariadb.Error as e:
         print(f"Error updating ticket: {e}")
         sys.exit(1)
+        
+    conn.close()
 
 
 #function to set all used fields to 0 for testing purposes
@@ -30,6 +45,8 @@ def clearUsed(cur, conn):
     except mariadb.Error as e:
         print(f"Error resetting database: {e}")
         sys.exit(1)
+        
+    conn.close()
 
 
 #lists the current state of thetable. not working.
@@ -45,24 +62,17 @@ def listGuests(cur, conn):
         while True:
             row = cur.fetchone()
             if not row:
-                return
+                conn.close()
             print(row)
     except mariadb.Error as e:
         print(f"Error displaying table: {e}")
         sys.exit(1)
+        
+    conn.close()
 
 
 def main():
-    #set up our db connection
-    try:
-        conn = mariadb.connect(
-        user="root",
-        password="quicket",
-        host="localhost",
-        database="quicketsystem")
-    except mariadb.Error as e:
-        print(f"Error connecting to MariaDB Platform: {e}")
-        sys.exit(1)
+    conn = helloDB()
 
     #establish our cursor
     print("We have connected to the", conn.database, "database.")
@@ -71,6 +81,7 @@ def main():
 
     #loop to continuously check tickets against the db
     while True:
+        conn = helloDB()
         #get an incoming ticket. later this will be real
         incomingID = str(input("Simlulated ticket is: "))
         
