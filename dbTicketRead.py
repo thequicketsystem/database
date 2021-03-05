@@ -21,13 +21,17 @@ def readTicket(incomingID):
     cur = conn.cursor()
     
     try:
-        cur.execute("UPDATE guests SET used=1 WHERE ticketID=? AND used=0;", (incomingID,))
-        conn.commit()
-        cur.execute("SELECT ROW_COUNT()")
-        #currently only says there's no result set
+        cur.execute("SELECT * FROM guests WHERE ticketID=? AND used=0;", (incomingID,))
         result = cur.fetchall()
         if result != 0:
-            print(incomingID, "has been set to USED.")
+        #working - sets used bit to 1
+            cur.execute("UPDATE guests SET used=1 WHERE ticketID=? AND used=0;", (incomingID,))
+            conn.commit()
+        #try to check if it's already used
+        #cur.execute("SELECT ROW_COUNT()")
+        #result = cur.fetchall()
+        #if result != 0:
+        #    print(incomingID, "has been set to USED.")
         else:
             print(f"ERROR: DUPLICATE TICKET ENTRY")
     except mariadb.Error as e:
@@ -43,11 +47,10 @@ def clearUsed():
     cur = conn.cursor()
     
     values = [123,234,345,456,567]
-    query = "UPDATE guests SET used=0 WHERE ticketID = %s;"
     
     try:
         for item in values:
-            cur.execute(query, item)
+            cur.execute("UPDATE guests SET used=0 WHERE ticketID=?",(item,))
             conn.commit()
             print(f"ID reset: {item}")
     except mariadb.Error as e:
