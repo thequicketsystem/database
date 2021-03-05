@@ -21,23 +21,21 @@ def readTicket(incomingID):
     cur = conn.cursor()
     
     try:
-        cur.execute("SELECT * FROM guests WHERE ticketID=? AND used=0;", (incomingID,))
+        #working - sets used bit to 1
+        cur.execute("UPDATE guests SET used=1 WHERE ticketID=? AND used=0;", (incomingID,))
+        conn.commit()
+
+        #try to check if it's already used
+        cur.execute("SELECT ROW_COUNT()")
         result = cur.fetchall()
         if result != 0:
-        #working - sets used bit to 1
-            cur.execute("UPDATE guests SET used=1 WHERE ticketID=? AND used=0;", (incomingID,))
-            conn.commit()
-        #try to check if it's already used
-        #cur.execute("SELECT ROW_COUNT()")
-        #result = cur.fetchall()
-        #if result != 0:
-        #    print(incomingID, "has been set to USED.")
+            print(incomingID, "has been set to USED.")
         else:
             print(f"ERROR: DUPLICATE TICKET ENTRY")
     except mariadb.Error as e:
         print(f"Error updating ticket: {e}")
         sys.exit(1)
-        
+    print(f"returning")
     conn.close()
 
 
