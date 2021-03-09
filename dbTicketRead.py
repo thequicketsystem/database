@@ -1,6 +1,9 @@
 import mariadb
 import sys
 
+global idList
+idList = []
+
 def helloDB():
     #set up our db connection
     try:
@@ -19,24 +22,31 @@ def helloDB():
 def readTicket(incomingID):
     conn = helloDB()
     cur = conn.cursor()
+
+    idList.append(incomingID)
+    print(idList)
     
     try:
-        cur.execute("SELECT used FROM guests WHERE ticketID=%d;", (int(incomingID),))
-        result = cur.fetchall()[0][0]
-        print(result)
-        print(type(result))
-        if result == 0:
-        #working - sets used bit to 1
-            cur.execute("UPDATE guests SET used=1 WHERE ticketID=%d AND used=0;", (int(incomingID),))
-            conn.commit()
-            print(incomingID, "has been set to USED.")
+        for each in idList:
+            cur.execute("SELECT used FROM guests WHERE ticketID=%d;", (int(each),))
+            result = cur.fetchall()[0][0]
+            print(result)
+            print(type(result))
+            if result == 0:
+                #working - sets used bit to 1
+                cur.execute("UPDATE guests SET used=1 WHERE ticketID=%d AND used=0;", (int(each),))
+                conn.commit()
+                print(incomingID, "has been set to USED.")
+                idList.pop(0)
 
-        else:
-            print(f"ERROR: DUPLICATE TICKET ENTRY")
+            else:
+                print(f"ERROR: DUPLICATE TICKET ENTRY")
+                idList.pop(0)
     except mariadb.Error as e:
         print(f"Error updating ticket: {e}")
         sys.exit(1)
-    print(f"returning")
+
+    print(idList)
     conn.close()
 
 
