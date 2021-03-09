@@ -31,11 +31,6 @@ def readTicket(incomingID):
             conn.commit()
             print(incomingID, "has been set to USED.")
 
-        #try to check if it's already used
-        #cur.execute("SELECT ROW_COUNT();")
-        #result = cur.fetchall()[0][0]
-        #if result == 0:
-        #    print(incomingID, "has been set to USED.")
         else:
             print(f"ERROR: DUPLICATE TICKET ENTRY")
     except mariadb.Error as e:
@@ -73,14 +68,7 @@ def listGuests():
     rows = []
     try:
         cur.execute(query)
-        #print([x[0] for x in cur.description])
         rows = cur.fetchall()
-        #for line in rows:
-        #    print(line)
-        #while True:
-            #if not rows:
-            #    conn.close()
-            #print(row)
     except mariadb.Error as e:
         print(f"Error displaying table: {e}")
         sys.exit(1)
@@ -91,13 +79,6 @@ def listGuests():
 
 
 def main():
-    #conn = helloDB()
-
-    #establish our cursor
-    #print("We have connected to the", conn.database, "database.")
-    #print("Server is", conn.server_name)
-    #cur = conn.cursor()
-
     #loop to continuously check tickets against the db
     while True:
         #get an incoming ticket. later this will be real
@@ -111,8 +92,6 @@ def main():
         elif (incomingID == "show") or (incomingID == "display") or (incomingID == "state"):
             rows = listGuests()
             print(rows)
-            #for each in rows:
-            #    print(each,"\n")
         #otherwise, read the ticket
         else:
             readTicket(incomingID)
